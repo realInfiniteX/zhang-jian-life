@@ -1,0 +1,18 @@
+{
+  "name": "zhang-jian-life",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "一生一城：张謇人生视觉小说游戏",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:ui": "playwright test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}
