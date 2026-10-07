@@ -287,9 +287,9 @@ export const ENDINGS = {
 };
 
 export const ART = {
-  study:{src:'assets/study.webp',alt:'AI绘制的晚清江南书斋，木窗外是黎明',caption:'AI 场景画 · 江南书斋'},
-  river:{src:'assets/river.webp',alt:'AI绘制的江南河岸棉纺工厂、木船与石桥',caption:'AI 场景画 · 江海实业'},
-  school:{src:'assets/school.webp',alt:'AI绘制的新式学堂庭院、教师与学生',caption:'AI 场景画 · 学堂晨光'}
+  study:{src:'assets/study.webp',alt:'晚清江南书斋，木窗外是黎明'},
+  river:{src:'assets/river.webp',alt:'江南河岸棉纺工厂、木船与石桥'},
+  school:{src:'assets/school.webp',alt:'新式学堂庭院、教师与学生'}
 };
 
 export function chapter(year) {

@@ -7,6 +7,16 @@ test('a complete historical life, saved consequence, restart collection and time
   await expect(page.locator('#story-title')).toHaveText('状元之后，何去何从');
   await expect(page.locator('.character')).toBeVisible();
   await expect(page.locator('.background-art')).toBeVisible();
+  const scene=await page.locator('.scene').boundingBox();
+  expect(scene.x).toBe(0);
+  expect(scene.y).toBe(0);
+  expect(scene.width).toBe(page.viewportSize().width);
+  expect(scene.height).toBe(page.viewportSize().height);
+  await expect(page.locator('.stat-circle')).toHaveCount(4);
+  const stats=await page.locator('#stats').boundingBox();
+  expect(stats.x).toBeLessThan(40);
+  expect(stats.y).toBeGreaterThan(page.viewportSize().height-100);
+  await expect(page.locator('body')).not.toContainText('AI 场景画');
   await page.locator('[data-choice="business"]').click();
   await page.reload();
   await expect(page.getByRole('button',{name:'继续人生',exact:true})).toBeVisible();
@@ -25,7 +35,9 @@ test('a complete historical life, saved consequence, restart collection and time
   await page.getByRole('button',{name:'回顾选择',exact:true}).click();
   await page.locator('[data-rewind="0"]').click();
   await expect(page.locator('#story-title')).toHaveText('状元之后，何去何从');
-  await expect(page.locator('#progress-label')).toContainText('1 / 10');
+  await page.getByRole('button',{name:'人生图谱',exact:true}).click();
+  await expect(page.locator('.atlas-card.unlocked')).toHaveCount(1);
+  await page.locator('[data-action="close"]').click();
   await expect(page.locator('#stats')).toContainText('50');
   expect(errors).toEqual([]);
 });
@@ -54,7 +66,7 @@ test('unavailable or corrupt browser storage does not prevent play',async({page}
   await page.addInitScript(()=>{Object.defineProperty(Storage.prototype,'setItem',{value(){throw new DOMException('Blocked','SecurityError');}});});
   await page.goto('/');
   await page.locator('[data-choice="court"]').click();
-  await expect(page.locator('#route-note')).toContainText('无法存档');
+  await expect(page.locator('#save-status')).toContainText('无法存档');
   await page.locator('[data-action="continue"]').click();
   await expect(page.locator('#story-title')).toHaveText('改革的门，开了又关');
 });
