@@ -161,8 +161,7 @@ dialog::backdrop { background: #020b0bbb; backdrop-filter: blur(5px); }
 @media (prefers-reduced-motion: reduce) {
   *, *:before, *:after { transition: none !important; animation: none !important; }
 }
-.background-art { transition: transform 1.2s ease; transform: scale(1); }
-.background-art.close-shot { transform: scale(1.06); }
+.background-art { transform: scale(1); }
 .character[hidden] { display: none; }
 .story-content.reading-panel { display: block; max-width: 760px; padding-right: 0; }
 .reading-panel .dialogue-copy { padding: 22px 26px; }
@@ -184,3 +183,19 @@ dialog::backdrop { background: #020b0bbb; backdrop-filter: blur(5px); }
   .reading-panel .narrative p { font-size: 1rem; line-height: 1.85; }
   .frame-title { font-size: 1.125rem; }
 }
+
+.character { animation: character-breath 7s ease-in-out infinite; transform-origin: 50% 75%; transition: left .6s ease; }
+.character-previous { z-index: 0; animation: none !important; }
+#game[data-phase="story"] .character, #game[data-phase="consequence"] .character { left: 67%; }
+.scene-pulse { position: absolute; inset: 0; z-index: 2; opacity: 0; pointer-events: none; background: radial-gradient(ellipse at 75% 50%,#d8b08066,transparent 65%); }
+.topbar nav button.sound-on { border-color: #e2c895aa; color: var(--gold); }
+.sound-controls { border-top: 1px solid var(--line); padding-top: 12px; }
+.sound-option { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 0; font-size: 1rem; }
+.sound-option input { width: 21px; height: 21px; accent-color: #d7b57c; }
+.sound-volume-label { display: flex; align-items: center; justify-content: space-between; font-size: 1rem; margin: 20px 0 12px; }
+#sound-volume { width: 100%; accent-color: #d7b57c; }
+#audio-status { color: var(--gold) !important; font-size: .875rem !important; margin-top: 18px; }
+.scene-copy { text-shadow: 0 1px 3px #000,0 0 12px #000b; }
+@keyframes character-breath { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(3px); } }
+@media (max-width:780px) { #game[data-phase="story"] .character, #game[data-phase="consequence"] .character { left: 63%; } }
+@media (prefers-reduced-motion:reduce) { .character { animation: none !important; transition: none !important; } }

@@ -309,6 +309,13 @@ export const ART = {
   school:{src:'assets/school.webp',alt:'新式学堂庭院、教师与学生'}
 };
 
+export const CHARACTER_ART={
+  adult:{src:'assets/adult.webp',alt:'中年张謇'},
+  elder:{src:'assets/elder.webp',alt:'晚年张謇'},
+  greet:{src:'assets/adult-greet.webp',alt:'张謇轻轻躬身致意'},
+  read:{src:'assets/adult-read.webp',alt:'张謇抬起卷轴阅读'}
+};
+
 export function chapter(year) {
   if(year<1900) return '第一卷 · 状元转身';
   if(year<1906) return '第二卷 · 实业与新学';

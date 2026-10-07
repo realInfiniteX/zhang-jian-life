@@ -184,5 +184,27 @@
     "attempts": 1,
     "prompt": "Use case: historical-scene\nAsset type: immersive historical visual-novel background, a single wide landscape image, 16:9 composition, target 1536x864 pixels.\nStyle/medium: exquisite traditional Chinese ink-wash painting fused with cinematic concept art, as a cohesive companion to painted late Qing Jiangnan study, riverside textile mill, and teacher-training courtyard backgrounds. Delicate rice-paper grain, subtle ink diffusion, richly resolved but restrained architecture, believable period materials, elegant atmospheric depth. Visibly illustrated, not a historical or archival photograph.\nLighting/color: deep indigo, dark teal and ink-green shadows, copper-gold natural or lamplight, muted ivory and stone gray, harmonious refined tones.\nComposition/framing: cinematic wide view with foreground, middle ground and distance. Environment is the subject; any people remain small, distant supporting figures, never close-up portraits. The image fills the entire canvas. Keep a quieter lower-contrast area toward the left for later game overlays without painting any UI.\nConstraints: a period environment concept illustration, not a claim of exact reconstruction of named buildings, ships or exhibitions. No close-up Zhang Jian; he is represented by a separate character sprite in the game. No text anywhere, no readable writing, no labels, no captions, no UI, no logos, no watermarks, no modern items. Opaque background, no transparency.\nPrimary request: an accounting room at night in 1922, conveying a cotton enterprise's funding crisis.\nScene/backdrop: an empty worn timber desk with an abacus, thick account ledgers, loose unlettered bills and folded papers; only faint ruled lines and paper texture, absolutely no writing. A small kerosene lamp glows beside the books. Through a dark wooden window appear dim factory buildings and a distant chimney at night. No people.\nLighting/mood: a tight copper-gold lamplight pool against heavy indigo and ink-green shadows, exhausted quiet and financial pressure; restrained atmosphere, no melodramatic symbols.",
     "observed_limitations": null
+  },
+  {
+    "name": "adult-greet",
+    "prompt": "Edit this existing transparent character sprite for a historical Chinese visual novel. Preserve exactly the same recognizable Zhang Jian facial identity, middle-aged appearance, black round cap, gray mustache and chin beard, dark teal changshan, realistic hand-painted visual novel/gongbi rendering, soft warm light, entire full-body framing, character size and placement on a 1024x1536 portrait canvas. Change ONLY the pose: he gives a restrained polite greeting, a small gentle nod and a slight bow of the shoulders, the free hand lifted to chest level in a modest greeting gesture while the other hand retains the rolled scroll. Keep both hands anatomically natural, fingers restrained and correct. Genuinely transparent background with clean cutout edges. No backdrop, halo, ground, shadow rectangle, text, UI or watermark. This is a pose variant for subtle animation, not a new character or a photograph.",
+    "mode": "built-in image_gen",
+    "reference_image": "adult.webp (original generated portrait)",
+    "transparent_background_requested": true,
+    "actual_dimensions": [
+      1024,
+      1536
+    ]
+  },
+  {
+    "name": "adult-read",
+    "prompt": "Edit this existing transparent character sprite for a historical Chinese visual novel. Preserve exactly the same recognizable Zhang Jian facial identity, middle-aged appearance, black round cap, gray mustache and chin beard, dark teal changshan, realistic hand-painted visual novel/gongbi rendering, soft warm light, entire full-body framing, character size and placement on a 1024x1536 portrait canvas. Change ONLY the pose: he has raised the rolled book scroll from waist height to mid-chest, supporting it with both hands and partly opening the blank unlettered scroll, eyes modestly lowered toward the document, calm thoughtful expression and slightly leaning forward to read. Natural anatomy and correctly formed hands, no invented ornaments. Genuinely transparent background with clean cutout edges. No backdrop, halo, ground, shadow rectangle, readable writing, UI or watermark. This is a pose variant for subtle animation, not a new character or a photograph.",
+    "mode": "built-in image_gen",
+    "reference_image": "adult.webp (original generated portrait)",
+    "transparent_background_requested": true,
+    "actual_dimensions": [
+      1024,
+      1536
+    ]
   }
 ]

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { NODES, ENDINGS, SOURCES, STATS, ART } from '../dist/story.js';
+import { NODES, ENDINGS, SOURCES, STATS, ART, CHARACTER_ART } from '../dist/story.js';
 import { EVENTS, INTRO, EPILOGUES, framesFor, aftermath } from '../dist/narrative.js';
 import { newGame, choose, advance, previousFrame, readToChoice, rewind, restoreGame, isHistorical, unmetRequirements } from '../dist/engine.js';
 
@@ -42,7 +42,8 @@ test('story graph, nested events, shots, frame text and all assets are valid',()
     }
     let year=n.year;
     for(const f of INTRO[id]) {
-      assert.ok(ART[f.art]);assert.ok(f.text&&f.text.length<=120);
+      assert.ok(ART[f.art]);assert.ok(f.text&&f.text.length>=70&&f.text.length<=150,'each frame has substantive, readable text');
+      assert.ok(CHARACTER_ART[f.pose]);
       assert.ok(f.year>=year,`${id}: time moves backwards within a chapter`);year=f.year;
       f.refs.forEach(ref=>assert.ok(SOURCES[ref]));
     }
@@ -57,9 +58,10 @@ test('story graph, nested events, shots, frame text and all assets are valid',()
   walk('beginning');
   assert.equal(visited.size,Object.keys(NODES).length);
   for(const art of Object.values(ART))assert.ok(existsSync(new URL('../dist/'+art.src,import.meta.url)),art.src);
+  for(const art of Object.values(CHARACTER_ART))assert.ok(existsSync(new URL('../dist/'+art.src,import.meta.url)),art.src);
   for(const name of ['adult.webp','elder.webp','zhang-jian.jpg','dasheng-1915.jpg','museum-2013.jpg','art-prompts.json'])assert.ok(existsSync(new URL('../dist/assets/'+name,import.meta.url)));
   const prompts=JSON.parse(readFileSync(new URL('../dist/assets/art-prompts.json',import.meta.url)));
-  assert.equal(prompts.length,Object.keys(ART).length+2);
+  assert.equal(prompts.length,Object.keys(ART).length+Object.keys(CHARACTER_ART).length);
   assert.ok(!JSON.stringify(prompts).includes('/Users/'));
   for(const frames of Object.values(EPILOGUES))assert.ok(frames.length>=3);
 });

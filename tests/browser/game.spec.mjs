@@ -16,7 +16,8 @@ test('prologue shows several events and pictures, then a full historical life',a
   await page.goto('/');
   await expect(page.locator('#story-title')).toHaveText('寒窗未尽');
   await expect(page.locator('[data-choice]')).toHaveCount(0);
-  await expect(page.locator('.character')).not.toBeVisible();
+  await expect(page.locator('#character-art')).not.toBeVisible();
+  await expect(page.locator('#character-previous')).not.toBeVisible();
   const scene=await page.locator('.scene').boundingBox();expect(scene.x).toBe(0);expect(scene.y).toBe(0);expect(scene.width).toBe(page.viewportSize().width);expect(scene.height).toBe(page.viewportSize().height);
   await expect(page.locator('.stat-circle')).toHaveCount(4);
   const stats=await page.locator('#stats').boundingBox();expect(stats.x).toBeLessThan(40);expect(stats.y).toBeGreaterThan(page.viewportSize().height-100);
