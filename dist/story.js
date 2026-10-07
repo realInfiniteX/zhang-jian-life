@@ -1,6 +1,9 @@
 export const STATS = { industry: '实业根基', education: '教育薪火', trust: '公共信望', cash: '周转余力' };
 
 export const SOURCES = {
+  naval: { title:'外交部 · 黄海海战史事', url:'https://www.fmprc.gov.cn/web/ziliao_674904/historytoday_674971/200309/t20030917_9284644.shtml' },
+  treaty: { title:'外交部 · 马关条约', url:'https://www.fmprc.gov.cn/diaoyudao/chn/flfg/gjty/201510/t20151009_8560614.htm' },
+  museumHistory: { title:'江苏档案 · 南通博物苑创办', url:'https://dajs.gov.cn/art/2016/10/10/art_120_9987.html' },
   material: { title: '用户提供《张謇》课程专题材料', note: '主要内容依据：人物纪要、政治道路、实业教育联系及大生危机分析。游戏未公开原文档。' },
   timeline: { title: '张謇研究会 · 张謇生平大事年表', url: 'https://jszjyjh.org.cn/h-nd-120.html' },
   archives: { title: '江苏档案 · 大生纱厂创办初期档案', url: 'https://www.dajs.gov.cn/art/2021/10/8/art_123_9651.html' },
@@ -287,6 +290,20 @@ export const ENDINGS = {
 };
 
 export const ART = {
+  exam:{src:'assets/exam.webp',alt:'宫廷殿试考场的桌案与考生'},
+  laureate:{src:'assets/laureate.webp',alt:'金榜消息传出的宫门与街市'},
+  fleet:{src:'assets/fleet.webp',alt:'海上蒸汽铁甲舰与阴云'},
+  war:{src:'assets/war.webp',alt:'海战远景中的舰影与烟火'},
+  treaty:{src:'assets/treaty.webp',alt:'灯下桌上的卷宗、地图与算盘'},
+  funding:{src:'assets/funding.webp',alt:'江南商绅议事厅中的筹股桌案'},
+  construction:{src:'assets/construction.webp',alt:'河岸纱厂建设中的砖墙与运机器木船'},
+  machines:{src:'assets/machines.webp',alt:'棉纺厂内成排机器与工人远景'},
+  cotton:{src:'assets/cotton.webp',alt:'通海棉田、沟渠与劳作农人'},
+  classroom:{src:'assets/classroom.webp',alt:'新式师范教室中的教师与学生'},
+  japan:{src:'assets/japan.webp',alt:'明治时期工业博览展馆'},
+  museum:{src:'assets/museum.webp',alt:'博物苑展厅的木柜、标本与参观者'},
+  assembly:{src:'assets/assembly.webp',alt:'清末地方议事厅与长桌'},
+  ledger:{src:'assets/ledger.webp',alt:'夜间账房里的算盘、账册与灯火'},
   study:{src:'assets/study.webp',alt:'晚清江南书斋，木窗外是黎明'},
   river:{src:'assets/river.webp',alt:'江南河岸棉纺工厂、木船与石桥'},
   school:{src:'assets/school.webp',alt:'新式学堂庭院、教师与学生'}
