@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { NODES, ENDINGS, SOURCES, STATS, ART, CHARACTER_ART } from '../dist/story.js';
+import { NODES, ENDINGS, SOURCES, STATS, ART, CHARACTER_ART, CAST_ART } from '../dist/story.js';
 import { EVENTS, INTRO, EPILOGUES, framesFor, aftermath } from '../dist/narrative.js';
 import { newGame, choose, advance, previousFrame, readToChoice, rewind, restoreGame, isHistorical, unmetRequirements } from '../dist/engine.js';
 
@@ -44,6 +44,8 @@ test('story graph, nested events, shots, frame text and all assets are valid',()
     for(const f of INTRO[id]) {
       assert.ok(ART[f.art]);assert.ok(f.text&&f.text.length>=70&&f.text.length<=150,'each frame has substantive, readable text');
       assert.ok(CHARACTER_ART[f.pose]);
+      for(const cast of f.cast)assert.ok(CAST_ART[cast]);
+      if(f.speaking&&f.speaking!=='zhang')assert.ok(f.cast.includes(f.speaking));
       assert.ok(f.year>=year,`${id}: time moves backwards within a chapter`);year=f.year;
       f.refs.forEach(ref=>assert.ok(SOURCES[ref]));
     }
@@ -59,15 +61,20 @@ test('story graph, nested events, shots, frame text and all assets are valid',()
   assert.equal(visited.size,Object.keys(NODES).length);
   for(const art of Object.values(ART))assert.ok(existsSync(new URL('../dist/'+art.src,import.meta.url)),art.src);
   for(const art of Object.values(CHARACTER_ART))assert.ok(existsSync(new URL('../dist/'+art.src,import.meta.url)),art.src);
+  for(const art of Object.values(CAST_ART))assert.ok(existsSync(new URL('../dist/'+art.src,import.meta.url)),art.src);
   for(const name of ['adult.webp','elder.webp','zhang-jian.jpg','dasheng-1915.jpg','museum-2013.jpg','art-prompts.json'])assert.ok(existsSync(new URL('../dist/assets/'+name,import.meta.url)));
   const prompts=JSON.parse(readFileSync(new URL('../dist/assets/art-prompts.json',import.meta.url)));
-  assert.equal(prompts.length,Object.keys(ART).length+Object.keys(CHARACTER_ART).length);
+  assert.equal(prompts.length,Object.keys(ART).length+Object.keys(CHARACTER_ART).length+Object.keys(CAST_ART).length);
   assert.ok(!JSON.stringify(prompts).includes('/Users/'));
   for(const frames of Object.values(EPILOGUES))assert.ok(frames.length>=3);
 });
 
 test('the prologue has narration, multiple events and changing pictures before the first decision',()=>{
   let state=newGame();const stats={...state.stats},seen=new Set();
+  assert.equal(INTRO.beginning[0].eventTitle,'金榜题名');
+  assert.match(INTRO.beginning[0].text,/已经荣登状元/);
+  assert.ok(INTRO.beginning[0].character);
+  assert.ok(!INTRO.beginning.some(f=>f.eventId==='long-study'));
   assert.throws(()=>choose(state,'business'));
   while(state.phase==='story') {
     seen.add(framesFor(state)[state.frame].art);
@@ -82,6 +89,19 @@ test('the prologue has narration, multiple events and changing pictures before t
   const previous=previousFrame(state);
   assert.equal(previous.phase,'story');assert.deepEqual(previous.stats,stats);
   assert.deepEqual(advance(previous),state);
+});
+
+test('supporting characters debate concrete choices across three chapters',()=>{
+  for(const [node,cast] of [['funding','xu'],['school','lin'],['constitution','gu']]) {
+    const frames=INTRO[node];
+    assert.ok(frames.every(f=>f.cast.includes(cast)));
+    assert.ok(frames.some(f=>f.speaking===cast));
+    assert.ok(frames.some(f=>f.speaking==='zhang'));
+    assert.ok(NODES[node].choices.every(c=>c.result.includes(CAST_ART[cast].name)));
+  }
+  assert.equal(ENDINGS.history.title,'实业兴邦');
+  assert.equal(ENDINGS.education.title,'书香门第');
+  assert.ok(Object.values(ENDINGS).every(e=>e.motto));
 });
 
 test('historical choices produce the historical ending; any deviation remains IF',()=>{

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('music starts on interaction, controls persist, and sound settings preserve the story',async({page})=>{
   await page.goto('/');
-  await expect(page.locator('.narrative p')).toHaveText(/书斋里又亮起/);
+  await expect(page.locator('.narrative p')).toHaveText(/已经荣登状元/);
   expect((await page.locator('.narrative p').innerText()).length).toBeGreaterThanOrEqual(70);
   await page.getByRole('button',{name:'继续',exact:true}).click();
   await expect(page.locator('body')).toHaveAttribute('data-audio','playing');
@@ -46,11 +46,30 @@ test('every theme renders audible music and cues without clipping',async({page})
 test('greeting and reading poses appear, while reduced motion suppresses camera animation',async({page})=>{
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('/');
-  for(let i=0;i<4;i++)await page.getByRole('button',{name:'继续',exact:true}).click();
   await expect(page.locator('#character-art')).toHaveAttribute('src','assets/adult-greet.webp');
   await expect(page.locator('#character-art')).toBeVisible();
   expect(await page.locator('#background-art').evaluate(el=>el.getAnimations().length)).toBe(0);
-  for(let i=0;i<10;i++)await page.getByRole('button',{name:'继续',exact:true}).click();
+  for(let i=0;i<14;i++)await page.getByRole('button',{name:'继续',exact:true}).click();
   await expect(page.locator('#character-art')).toHaveAttribute('src','assets/adult-read.webp');
   expect(await page.locator('#character-art').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+});
+
+test('the merchant shares the foreground and speaker focus changes during negotiation',async({page})=>{
+  await page.goto('/');
+  for(let i=0;i<16;i++)await page.getByRole('button',{name:'继续',exact:true}).click();
+  await page.locator('[data-choice="business"]').click();
+  while(await page.locator('#game').getAttribute('data-phase')!=='choice')await page.locator('[data-action="next-frame"]').click();
+  await page.locator('[data-choice="shares"]').click();
+  await page.locator('[data-action="next-frame"]').click();
+  await page.locator('[data-action="next-frame"]').click();
+  await expect(page.locator('#supporting-art')).toHaveAttribute('data-cast','xu');
+  await expect(page.locator('#supporting-art')).toBeVisible();
+  await expect(page.locator('#character-art')).toBeVisible();
+  await expect(page.locator('.speaker')).toContainText('许掌柜');
+  await expect(page.locator('#character-art')).toHaveClass(/muted-character/);
+  await page.locator('[data-action="next-frame"]').click();
+  await expect(page.locator('.speaker')).toContainText('张謇');
+  await expect(page.locator('#supporting-art')).toHaveClass(/muted-character/);
+  for(let i=0;i<7;i++)await page.locator('[data-action="next-frame"]').click();
+  await expect(page.locator('[data-choice="borrow"]')).toContainText('许掌柜的短借');
 });

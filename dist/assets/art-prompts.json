@@ -206,5 +206,23 @@
       1024,
       1536
     ]
+  },
+  {
+    "name": "cast-xu",
+    "prompt": "Create a standalone full-body transparent character sprite for a Chinese historical visual novel set in late Qing Jiangnan around 1896-1910. Refined semi-realistic visual novel portrait art blended with Chinese gongbi painting, delicate linework and natural anatomy, soft warm edge light, rich but restrained cloth texture. 1024x1536 portrait canvas, head to shoes completely visible with transparent margins, figure centered at a consistent scale. Genuinely transparent background; no background, floor, halo, shadow rectangle, lettering, UI or watermark. This is a fictional composite supporting character, not a portrait of a real named historical person. Face must look distinct from Zhang Jian; no long gray chin beard. A 50-year-old Jiangnan merchant and shareholder representative, slightly stocky, broad square face, short neatly trimmed dark mustache, plain black round cap, muted dark olive-brown changshan. Three-quarter stance turned slightly to his right, looking toward the player, one hand holds a closed unlettered account ledger at waist level, the other open palm makes a restrained questioning gesture. Practical, cautious, mildly skeptical expression, dignified and human rather than villainous.",
+    "mode": "built-in image_gen",
+    "transparent_background_requested": true
+  },
+  {
+    "name": "cast-lin",
+    "prompt": "Create a standalone full-body transparent character sprite for a Chinese historical visual novel set in late Qing Jiangnan around 1896-1910. Refined semi-realistic visual novel portrait art blended with Chinese gongbi painting, delicate linework and natural anatomy, soft warm edge light, rich but restrained cloth texture. 1024x1536 portrait canvas, head to shoes completely visible with transparent margins, figure centered at a consistent scale. Genuinely transparent background; no background, floor, halo, shadow rectangle, lettering, UI or watermark. This is a fictional composite supporting character, not a portrait of a real named historical person. Face must look distinct from Zhang Jian; no long gray chin beard. A 30-year-old male teacher at a newly established normal school, slim build, clean-shaven oval face, alert thoughtful eyes, neatly arranged late Qing hairstyle with a modest plain dark cap, simple slate-gray changshan and subtle light cuffs. Three-quarter stance turned slightly to his right toward the player, holds a thin blank unlettered lesson booklet at mid-chest and calmly gestures toward it with one hand. Serious, earnest, slightly concerned expression; no modern glasses, uniform or Western suit.",
+    "mode": "built-in image_gen",
+    "transparent_background_requested": true
+  },
+  {
+    "name": "cast-gu",
+    "prompt": "Create a standalone full-body transparent character sprite for a Chinese historical visual novel set in late Qing Jiangnan around 1896-1910. Refined semi-realistic visual novel portrait art blended with Chinese gongbi painting, delicate linework and natural anatomy, soft warm edge light, rich but restrained cloth texture. 1024x1536 portrait canvas, head to shoes completely visible with transparent margins, figure centered at a consistent scale. Genuinely transparent background; no background, floor, halo, shadow rectangle, lettering, UI or watermark. This is a fictional composite supporting character, not a portrait of a real named historical person. Face must look distinct from Zhang Jian; no long gray chin beard. A 42-year-old Chinese constitutional-reform colleague and provincial assembly participant, lean upright build, distinctive angular face and short dark mustache, neat plain black round cap, muted charcoal-plum changshan. Three-quarter stance turned slightly to his right toward the player, holds folded blank petition papers at waist level, free hand makes a restrained emphatic debating gesture. Intelligent, firm, slightly impatient expression, dignified late Qing civilian clothing, no official rank badges or modern accessories.",
+    "mode": "built-in image_gen",
+    "transparent_background_requested": true
   }
 ]

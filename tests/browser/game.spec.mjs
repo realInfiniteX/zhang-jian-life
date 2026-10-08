@@ -14,9 +14,9 @@ async function readUntilDecision(page) {
 test('prologue shows several events and pictures, then a full historical life',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/');
-  await expect(page.locator('#story-title')).toHaveText('寒窗未尽');
+  await expect(page.locator('#story-title')).toHaveText('金榜题名');
   await expect(page.locator('[data-choice]')).toHaveCount(0);
-  await expect(page.locator('#character-art')).not.toBeVisible();
+  await expect(page.locator('#character-art')).toBeVisible();
   await expect(page.locator('#character-previous')).not.toBeVisible();
   const scene=await page.locator('.scene').boundingBox();expect(scene.x).toBe(0);expect(scene.y).toBe(0);expect(scene.width).toBe(page.viewportSize().width);expect(scene.height).toBe(page.viewportSize().height);
   await expect(page.locator('.stat-circle')).toHaveCount(4);
@@ -38,7 +38,12 @@ test('prologue shows several events and pictures, then a full historical life',a
     const c=NODES[id].choices.find(c=>c.historical);
     await page.locator(`[data-choice="${c.id}"]`).click();await readUntilDecision(page);id=c.next;
   }
-  await expect(page.locator('#story-title')).toHaveText('有用之人');
+  await expect(page.locator('#story-title')).toHaveText('实业兴邦');
+  await expect(page.locator('.ending-screen')).toBeVisible();
+  await expect(page.locator('.sidebar')).not.toBeVisible();
+  expect(await page.locator('#story-title').evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThan(44);
+  const end=await page.locator('.ending-screen').boundingBox();
+  expect(end.width).toBe(page.viewportSize().width);expect(end.height).toBe(page.viewportSize().height);
   await page.getByRole('button',{name:'人生图谱',exact:true}).last().click();await expect(page.locator('.atlas-card.unlocked')).toHaveCount(1);await page.locator('[data-action="close"]').click();
   await page.getByRole('button',{name:'回顾选择',exact:true}).click();await page.locator('[data-rewind="0"]').click();
   await expect(page.locator('#story-title')).toHaveText('状元之后，何去何从');await expect(page.locator('#stats')).toContainText('50');expect(errors).toEqual([]);
@@ -49,7 +54,7 @@ test('education IF, consequence undo, event journal and readable mobile layout',
   await page.locator('[data-choice="teaching"]').click();await page.getByRole('button',{name:'重新选择',exact:true}).click();
   await expect(page.locator('#story-title')).toHaveText('状元之后，何去何从');
   for(const choice of ['teaching','teachers','network','fund']) {await page.locator(`[data-choice="${choice}"]`).click();await readUntilDecision(page);}
-  await expect(page.locator('#story-title')).toHaveText('桃李江海');
+  await expect(page.locator('#story-title')).toHaveText('书香门第');
   await page.getByRole('button',{name:'史料与说明',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('不是张謇原话');await page.keyboard.press('Escape');
   await page.getByRole('button',{name:'足迹',exact:true}).click();await expect(page.locator('.journal-event')).not.toHaveCount(0);await page.keyboard.press('Escape');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);

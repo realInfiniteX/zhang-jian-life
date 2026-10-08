@@ -1,4 +1,4 @@
-import { NODES, ENDINGS, STATS, SOURCES, ART, CHARACTER_ART, chapter } from './story.js';
+import { NODES, ENDINGS, STATS, SOURCES, ART, CHARACTER_ART, CAST_ART, chapter } from './story.js';
 import { newGame, choose, advance, previousFrame, rewind, restoreGame, isHistorical, unmetRequirements } from './engine.js';
 
 import { INTRO, NARRATIVE_COUNTS, framesFor, decisionScene } from './narrative.js';
@@ -29,7 +29,7 @@ function persist() {
 function sourceLinks(refs) { return refs.filter(key=>SOURCES[key]?.url).map(key=>`<a href="${escape(SOURCES[key].url)}" target="_blank" rel="noopener noreferrer">${SOURCES[key].title}</a>`).join(''); }
 function effects(changes) { return Object.entries(changes).map(([key,n])=>`<span class="${n<0?'neg':''}">${STATS[key]} ${n>0?'+':''}${n}</span>`).join(''); }
 const game=$('#game');
-game.innerHTML='<div class="scene"><img id="background-art" class="background-art" alt=""><div class="scene-copy"></div><img id="character-previous" class="character character-previous" alt="" aria-hidden="true" hidden><img id="character-art" class="character" alt=""><div id="scene-pulse" class="scene-pulse"></div></div><div id="stage-dialogue"></div>';
+game.innerHTML='<div class="scene"><img id="background-art" class="background-art" alt=""><div class="scene-copy"></div><img id="character-previous" class="character character-previous" alt="" aria-hidden="true" hidden><img id="character-art" class="character" alt=""><img id="supporting-art" class="cast-character" alt="" hidden><div id="scene-pulse" class="scene-pulse"></div></div><div id="stage-dialogue"></div>';
 const warmed=new Map();
 let cameraAnimation=null,sceneAnimation=null;
 function warmImage(src) {
@@ -56,7 +56,7 @@ function renderScene(meta,perform=false) {
   }
   bg.alt=art.alt;
   const elderly=meta.year>=1915,key=elderly?'elder':meta.pose||'adult',sprite=CHARACTER_ART[key];
-  const poseChanged=actor.getAttribute('src')!==sprite.src,wasVisible=!actor.hidden;
+  const poseChanged=actor.getAttribute('src')!==sprite.src,wasVisible=Boolean(actor.getAttribute('src'))&&!actor.hidden;
   if(poseChanged) {
     previous.getAnimations().forEach(animation=>animation.cancel());
     previous.src=actor.getAttribute('src')||sprite.src;previous.className=`character ${elderly?'elder':'adult'} character-previous`;
@@ -70,6 +70,7 @@ function renderScene(meta,perform=false) {
   actor.className=`character ${elderly?'elder':'adult'}`;
   actor.alt=sprite.alt;actor.hidden=!meta.character;
   actor.dataset.pose=key;
+  actor.classList.toggle('muted-character',Boolean(meta.speaking&&meta.speaking!=='zhang'));
   if(!meta.character)previous.hidden=true;
   if((poseChanged||!wasVisible)&&meta.character&&!reducedMotion.matches)actor.animate([{opacity:0},{opacity:1}],{duration:450});
   if(perform&&meta.character&&!reducedMotion.matches&&meta.frameIndex===0) {
@@ -83,10 +84,25 @@ function renderScene(meta,perform=false) {
     sceneAnimation?.cancel();sceneAnimation=$('.scene').animate([{transform:'translate(0,0)'},{transform:'translate(2px,1px)'},{transform:'translate(-2px,0)'},{transform:'translate(1px,-1px)'},{transform:'translate(0,0)'}],{duration:580});
     $('#scene-pulse').animate([{opacity:0},{opacity:.12},{opacity:0}],{duration:550});
   }
+  const support=$('#supporting-art'),castKey=meta.cast?.[0],supporting=CAST_ART[castKey];
+  const changedSupport=supporting&&support.getAttribute('src')!==supporting.src;
+  if(supporting) {
+    if(changedSupport)support.src=supporting.src;
+    support.alt=supporting.alt;support.dataset.cast=castKey;support.hidden=false;
+    support.classList.toggle('muted-character',Boolean(meta.speaking&&meta.speaking!==castKey));
+    if(changedSupport&&!reducedMotion.matches)support.animate([{opacity:0},{opacity:1}],{duration:500});
+  } else {support.hidden=true;delete support.dataset.cast;}
+  game.classList.toggle('has-cast',Boolean(supporting));
   $('.scene-copy').innerHTML=`<span class="era">${escape(chapter(meta.year))}</span><div class="year">${meta.year}</div><span class="scene-location">${escape(meta.place)} <span>/</span> ${meta.year-1853} 岁</span>`;
   const upcoming=framesFor(state).slice(state.frame+1).find(f=>f.art!==meta.art);
   if(upcoming)warmImage(ART[upcoming.art].src);
+  for(const cast of meta.cast||[])warmImage(CAST_ART[cast].src);
+  if(state.pending){const destination=NODES[state.node].choices.find(c=>c.id===state.pending.choice).next;if(INTRO[destination])for(const cast of INTRO[destination][0].cast||[])warmImage(CAST_ART[cast].src);}
   soundtrack.setScene(meta,perform);
+}
+function speakerLabel(meta) {
+  const supporting=CAST_ART[meta.speaking];
+  return escape(meta.speaker)+(supporting?`<span class="speaker-role">${supporting.role}</span>`:'');
 }
 function factButton() {return '<button class="fact-link" data-action="fact" type="button">史实对照</button>';}
 function frameNavigation() {
@@ -101,12 +117,13 @@ function render(focus=false,perform=false) {
   $('#save-status').textContent=storageMessage;
   game.dataset.phase=state.phase;
   game.classList.toggle('at-ending',state.phase==='ending');
+  $('.sidebar').hidden=state.phase==='ending';
   renderScene(meta,perform);
   if(state.phase==='ending') {
-    $('#stage-dialogue').innerHTML=`<div class="story-content ending"><div class="ending-narrative"><div class="end-label">${ending.subtitle}</div><h2 id="story-title" tabindex="-1">${ending.title}</h2><div class="narrative"><p>${ending.body[0]}</p></div></div><div class="ending-reflection"><div class="end-metrics">${Object.entries(STATS).map(([key,label])=>`<div><b>${state.stats[key]}</b><span>${label}</span></div>`).join('')}</div><div class="ending-lesson"><p>${ending.lesson}</p></div><div class="action-row"><button class="primary" data-action="new-life">再写一种人生</button><button class="secondary" data-action="atlas">人生图谱</button><button class="secondary" data-action="journal">回顾选择</button></div>${factButton()}</div></div>`;
+    $('#stage-dialogue').innerHTML=`<section class="ending-screen" aria-labelledby="story-title"><div class="ending-wrap"><header class="ending-hero"><div class="end-label">1926 · 人生终章 <span>${ending.subtitle}</span></div><h2 id="story-title" tabindex="-1">${ending.title}</h2><p class="ending-motto">${ending.motto}</p><span class="ending-seal" aria-hidden="true">终</span></header><div class="ending-grid"><div class="ending-story">${ending.body.map(text=>`<p>${text}</p>`).join('')}</div><aside class="ending-summary" aria-label="最终人生状态"><h3>人生状态</h3><div class="end-metrics">${Object.entries(STATS).map(([key,label])=>`<div><b>${state.stats[key]}</b><span>${label}</span></div>`).join('')}</div><p>${state.history.length} 次抉择 · 已发现 ${unlocked.size} / ${Object.keys(ENDINGS).length} 个结局</p></aside></div><div class="ending-lesson"><p>${ending.lesson}</p></div><div class="action-row ending-actions"><button class="primary" data-action="new-life">再写一种人生</button><button class="secondary" data-action="atlas">人生图谱</button><button class="secondary" data-action="journal">回顾选择</button>${factButton()}</div></div></section>`;
   } else if(state.phase!=='choice') {
     const frameCount=framesFor(state).length;
-    $('#stage-dialogue').innerHTML=`<div class="story-content reading-panel"><div class="dialogue-copy"><div class="speaker">${meta.speaker}<span class="badge ${!hist?'if':''}">${!hist?'IF 世界线':'史实主线'}</span></div><h2 id="story-title" class="frame-title" tabindex="-1">${meta.eventTitle}</h2><div class="narrative"><p>${meta.text}</p></div>${meta.effects?`<div class="effects">${effects(state.pending.changes)}</div>`:''}<div class="frame-tools">${factButton()}<span class="frame-count" aria-label="当前段落进度">${state.frame+1} / ${frameCount}</span></div>${frameNavigation()}</div></div>`;
+    $('#stage-dialogue').innerHTML=`<div class="story-content reading-panel"><div class="dialogue-copy"><div class="speaker">${speakerLabel(meta)}<span class="badge ${!hist?'if':''}">${!hist?'IF 世界线':'史实主线'}</span></div><h2 id="story-title" class="frame-title" tabindex="-1">${meta.eventTitle}</h2><div class="narrative"><p>${meta.text}</p></div>${meta.effects?`<div class="effects">${effects(state.pending.changes)}</div>`:''}<div class="frame-tools">${factButton()}<span class="frame-count" aria-label="当前段落进度">${state.frame+1} / ${frameCount}</span></div>${frameNavigation()}</div></div>`;
   } else {
     $('#stage-dialogue').innerHTML=`<div class="story-content"><div class="dialogue-copy"><div class="speaker">张謇<span class="badge ${!hist||node.fiction?'if':''}">${!hist||node.fiction?'IF 世界线':'史实主线'}</span></div><div class="story-head"><h2 id="story-title" tabindex="-1">${node.title}</h2></div><div class="narrative"><p>${node.body.at(-1)}</p></div><div class="frame-tools">${factButton()}<button class="frame-back" data-action="previous-frame">回看上一帧</button></div></div><div class="decision-panel"><div class="choices">${node.choices.map((choice,index)=>{
       const unmet=unmetRequirements(state,choice),description=unmet.length?unmet.join('、'):choice.description;
@@ -125,7 +142,7 @@ function showFact() {
   modal('史实与这一段人生',`<p class="modal-note">${state.ending?(state.ending==='history'?'史实主线结局':'此结局为架空推演'):!isHistorical(state)||node.fiction?'你已进入 IF 世界线；以下单独说明现实中的历史。':'叙事与选项是游戏化表达，下面是历史依据。'}</p><p>${state.ending?node.lesson:meta.fact}</p><div class="source-links">${sourceLinks(meta.refs)}</div><p class="modal-note">主要依据：用户提供的《张謇》课程专题材料。链接为核验与延伸阅读入口。</p>`);
 }
 function showSources() {
-  modal('史料与游戏说明',`<p>你将扮演张謇，从1894年的状元转身走到1926年的人生终章。1853年出生、早年读书与1882年赴朝鲜的经历，作为开场背景。</p><p>连续选择“史实选择”组成主世界线。任何一次架空选择都会进入 IF 世界线；后来遇到史实节点，也不会把已作出的推演变回史实。</p><p>内心独白、具体决策过程及数值均为游戏创作，不是张謇原话。左下角圆环表示实业根基、教育薪火、公共信望与周转余力，不能给历史人物作定量评价。阈值影响少数选项能否选择。</p><h3>历史依据</h3><p>${SOURCES.material.note}</p><ul>${Object.entries(SOURCES).filter(([key])=>key!=='material').map(([,source])=>`<li><a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer">${source.title}</a></li>`).join('')}</ul><h3>图片来源</h3><p>十七个场景和四张人物立绘由内置图像模型生成。人物参考张謇历史肖像，环境为时代场景创作。</p><p><a href="assets/art-prompts.json" target="_blank" rel="noopener">查看完整生成提示词</a></p><div class="source-gallery"><figure><img src="assets/zhang-jian.jpg" alt="张謇历史肖像" loading="lazy"><figcaption>张謇肖像，摄影者不详，1926年以前。<a href="https://commons.wikimedia.org/wiki/File:Zhang_Jian.jpg" target="_blank" rel="noopener noreferrer">Commons 来源页</a>标为公有领域。</figcaption></figure><figure><img src="assets/dasheng-1915.jpg" alt="1915年的大生纱厂外观" loading="lazy"><figcaption>1915年大生纱厂，摄影者不详。<a href="https://commons.wikimedia.org/wiki/File:Facade_of_Dasheng_Cotton_Mill_in_1915.jpg" target="_blank" rel="noopener noreferrer">Commons 来源页</a>标为公有领域。</figcaption></figure><figure><img src="assets/museum-2013.jpg" alt="2013年南通博物苑南馆外景" loading="lazy"><figcaption>南通博物苑南馆，猫猫的日记本摄，2013年1月。<a href="https://commons.wikimedia.org/wiki/File:The_South_Building_of_Nantong_Museum_01_2013-01.JPG" target="_blank" rel="noopener noreferrer">来源页</a>，<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>。原图未修改，仅按比例展示。</figcaption></figure></div><h3>音乐与演出</h3><p>原创合成配乐按场景换奏，配有翻页、卷轴、报喜、机器与海战音效。右上角“音乐”可调整音量、关闭配乐或关闭音效。人物手势与动作是叙事演出，环境使用轻微推镜头；系统减少动态效果的偏好会被尊重。</p><h3>操作与存档</h3><p>按Enter、空格或右方向键逐帧阅读，左方向键回看。故事展开后，才会出现关键抉择；点击选项或按1、2、3选择。点“足迹”可回顾并回溯；“图谱”展示可探索结局。重新开始保留已发现的结局。</p><p>游戏只在当前浏览器保存进度和结局收藏，无需注册，不上传存档。换浏览器或清理网站数据后，存档可能丢失。浏览器拒绝存储时，仍可完成本次人生。</p>`);
+  modal('史料与游戏说明',`<p>你将扮演张謇，从1894年荣当状元之后走到1926年的人生终章。开场先呈现金榜与翰林新身份；早年读书、殿试与1882年赴朝鲜的经历，在此后作为回忆交代。</p><p>连续选择“史实选择”组成主世界线。任何一次架空选择都会进入 IF 世界线；后来遇到史实节点，也不会把已作出的推演变回史实。</p><p>内心独白、具体决策过程及数值均为游戏创作，不是张謇原话。左下角圆环表示实业根基、教育薪火、公共信望与周转余力，不能给历史人物作定量评价。阈值影响少数选项能否选择。</p><h3>历史依据</h3><p>${SOURCES.material.note}</p><ul>${Object.entries(SOURCES).filter(([key])=>key!=='material').map(([,source])=>`<li><a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer">${source.title}</a></li>`).join('')}</ul><h3>配角与对白</h3><p>许掌柜（商股代表）、林先生（师范教员）与顾先生（立宪同人）是为呈现经营、办学与议政分歧创作的戏剧合成角色，非真实人物传记。角色互动与对白是游戏创作；“史实选择”表示历史行动方向，不表示曾发生一场同名会谈。</p><h3>图片来源</h3><p>十七个场景、四张张謇立绘与三张配角立绘由内置图像模型生成。人物参考张謇历史肖像，环境为时代场景创作。</p><p><a href="assets/art-prompts.json" target="_blank" rel="noopener">查看完整生成提示词</a></p><div class="source-gallery"><figure><img src="assets/zhang-jian.jpg" alt="张謇历史肖像" loading="lazy"><figcaption>张謇肖像，摄影者不详，1926年以前。<a href="https://commons.wikimedia.org/wiki/File:Zhang_Jian.jpg" target="_blank" rel="noopener noreferrer">Commons 来源页</a>标为公有领域。</figcaption></figure><figure><img src="assets/dasheng-1915.jpg" alt="1915年的大生纱厂外观" loading="lazy"><figcaption>1915年大生纱厂，摄影者不详。<a href="https://commons.wikimedia.org/wiki/File:Facade_of_Dasheng_Cotton_Mill_in_1915.jpg" target="_blank" rel="noopener noreferrer">Commons 来源页</a>标为公有领域。</figcaption></figure><figure><img src="assets/museum-2013.jpg" alt="2013年南通博物苑南馆外景" loading="lazy"><figcaption>南通博物苑南馆，猫猫的日记本摄，2013年1月。<a href="https://commons.wikimedia.org/wiki/File:The_South_Building_of_Nantong_Museum_01_2013-01.JPG" target="_blank" rel="noopener noreferrer">来源页</a>，<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>。原图未修改，仅按比例展示。</figcaption></figure></div><h3>音乐与演出</h3><p>原创合成配乐按场景换奏，配有翻页、卷轴、报喜、机器与海战音效。右上角“音乐”可调整音量、关闭配乐或关闭音效。人物手势与动作是叙事演出，环境使用轻微推镜头；系统减少动态效果的偏好会被尊重。</p><h3>操作与存档</h3><p>按Enter、空格或右方向键逐帧阅读，左方向键回看。故事展开后，才会出现关键抉择；点击选项或按1、2、3选择。点“足迹”可回顾并回溯；“图谱”展示可探索结局。重新开始保留已发现的结局。</p><p>游戏只在当前浏览器保存进度和结局收藏，无需注册，不上传存档。换浏览器或清理网站数据后，存档可能丢失。浏览器拒绝存储时，仍可完成本次人生。</p>`);
 }
 function showAtlas() {
   const hints={history:'始终选择史实方向。',balanced:'偏离一次史实，再走向维护学校的终章。',education:'将更多资源交给师资、学校与多方筹资。',prudent:'保留周转余力，在重整时守住经营边界。',public:'积累公共信望，让更多人共同承担责任。',constitution:'长期投入全国制度与共和倡议。',court:'留在旧秩序中，坚持原有制度期待。',partner:'让外部投资者掌握主要经营决定权。',collapse:'以更大借款押注市场，然后抢救遗产。',quiet:'承认边界，从公共事业中心退出。'};
@@ -210,7 +227,7 @@ renderSoundStatus(soundtrack.status());
 const modelContext=document.modelContext;
 if(modelContext?.registerTool) {
   const lifecycle=new AbortController();
-  const snapshot=()=>({node:state.node,year:currentScene().year,phase:state.phase,frame:state.frame,frameCount:framesFor(state).length,event:currentScene().eventTitle,stats:{...state.stats},historical:isHistorical(state),ending:state.ending,pending:Boolean(state.pending),choices:state.phase!=='choice'?[]:NODES[state.node].choices.map(c=>({id:c.id,title:c.title,available:!unmetRequirements(state,c).length}))});
+  const snapshot=()=>({node:state.node,year:currentScene().year,phase:state.phase,frame:state.frame,frameCount:framesFor(state).length,event:currentScene().eventTitle,speaker:currentScene().speaker,cast:(currentScene().cast||[]).map(key=>CAST_ART[key].name),stats:{...state.stats},historical:isHistorical(state),ending:state.ending,pending:Boolean(state.pending),choices:state.phase!=='choice'?[]:NODES[state.node].choices.map(c=>({id:c.id,title:c.title,available:!unmetRequirements(state,c).length}))});
   const registrations=[
     {name:'read_life_state',title:'读取人生状态',description:'Read the current node, resources, choices and ending without changing progress.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute:()=>snapshot()},
     {name:'choose_life_option',title:'作出人生选择',description:'Commit one available choice, update resources and show its consequence. Does not advance past the consequence.',inputSchema:{type:'object',properties:{choiceId:{type:'string'}},required:['choiceId'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute:input=>{if(!input||typeof input.choiceId!=='string')throw new Error('choiceId is required');update(choose(state,input.choiceId));return snapshot();}},
