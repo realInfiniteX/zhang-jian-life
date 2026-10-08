@@ -193,7 +193,7 @@ dialog::backdrop { background: #020b0bbb; backdrop-filter: blur(5px); }
 
 .cast-character { position:absolute; z-index:1; height:133dvh; width:auto; max-width:none; top:8dvh; left:29%; transform:translateX(-50%); pointer-events:none; filter:drop-shadow(0 5px 14px #0005); animation:character-breath 8s ease-in-out infinite; transition:opacity .3s ease; }
 .cast-character[hidden] { display:none; }
-.muted-character { opacity:.73; }
+.muted-character { opacity:1; filter:brightness(.74) drop-shadow(0 5px 14px #0005); }
 .speaker-role { font-family:var(--sans); font-size:.8125rem; letter-spacing:1px; color:var(--muted); }
 #game.has-cast .character { left:71%; }
 #game.at-ending .scene-copy { display:none; }
@@ -237,3 +237,7 @@ dialog::backdrop { background: #020b0bbb; backdrop-filter: blur(5px); }
   .ending-actions .fact-link { margin-left:0; }
 }
 @media(prefers-reduced-motion:reduce) { .cast-character { animation:none !important; transition:none !important; } }
+
+#game.has-cast .scene-copy { z-index:3; left:auto; right:24px; top:auto; bottom:19px; text-align:right; }
+#game.has-cast .scene-copy .era,#game.has-cast .scene-copy .scene-location { display:none; }
+#game.has-cast .scene-copy .year { font-size:1.875rem; line-height:1.2; margin:0; }
